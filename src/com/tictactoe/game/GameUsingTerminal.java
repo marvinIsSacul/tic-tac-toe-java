@@ -4,16 +4,19 @@ import java.util.Date;
 import java.util.Map;
 import java.util.HashMap;
 
+import com.tictactoe.board.Board;
+import com.tictactoe.board.BoardUsingPlayer;
 import com.tictactoe.exception.InvalidPlayerException;
 import com.tictactoe.exception.InvalidStateException;
 import com.tictactoe.type.Player;
 
 public class GameUsingTerminal extends Game {
 	private final Player []players = { null, null };
-	private Boolean inProgress = false;
+	private boolean inProgress = false;
 	private Date timeStarted;
+	private final Board board = new BoardUsingPlayer();
 	
-	GameUsingTerminal() {
+	public GameUsingTerminal() {
 		super();
 	}
 	
@@ -32,6 +35,7 @@ public class GameUsingTerminal extends Game {
 	public void startGame() {
 		if (!isInProgress()) {
 			timeStarted = new Date();
+			board.clearBoard();
 		}
 	}
 	
@@ -98,7 +102,7 @@ public class GameUsingTerminal extends Game {
 		
 		players[0] = (Player) rawPlayer1;
 		players[1] = (Player) rawPlayer2;
-		inProgress = (Boolean) rawInprogress;
+		inProgress = (boolean) rawInprogress;
 		timeStarted = new Date((String) rawTimeStarted);
 	}
 
@@ -115,6 +119,11 @@ public class GameUsingTerminal extends Game {
 	@Override
 	public void setPlayer2(Player player2) throws InvalidPlayerException {
 		
+	}
+	
+	@Override
+	public String toString() {
+		return getState().toString();
 	}
 	
 }
