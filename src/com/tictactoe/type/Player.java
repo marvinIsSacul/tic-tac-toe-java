@@ -20,4 +20,9 @@ public class Player implements Serializable {
 	public void setMark(char mark) {
 		this.mark = mark;
 	}
+	
+	@Override
+	public String toString() {
+		return name + " (" + mark + ")";
+	}
 }

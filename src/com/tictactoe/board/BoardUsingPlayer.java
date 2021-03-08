@@ -3,9 +3,10 @@ package com.tictactoe.board;
 import java.util.Arrays;
 
 import com.tictactoe.exception.InvalidPositionException;
+import com.tictactoe.type.GameStatus;
 import com.tictactoe.type.Player;
 
-public class BoardUsingPlayer extends Board<Player> {
+public class BoardUsingPlayer implements Board<Player> {
 	private static final long serialVersionUID = 1L;
 
 	final private Player [][]board = new Player[ROWS][COLUMNS]; 
@@ -34,10 +35,16 @@ public class BoardUsingPlayer extends Board<Player> {
 	}
 
 	@Override
-	public void setPosition(int row, int column, Player player) throws InvalidPositionException {
+	public boolean setPosition(int row, int column, Player player) throws InvalidPositionException {
 		assertValidPosition(row, column);
 		
+		if (isPositionOccupied(row, column)) {
+			return false;
+		}
+		
 		board[row][column] = player;
+		
+		return true;
 	}
 
 	@Override
@@ -45,6 +52,19 @@ public class BoardUsingPlayer extends Board<Player> {
 		assertValidPosition(row, column);
 		
 		return board[row][column] != null;
+	}
+	
+	public boolean isAnyPositionLeft() {
+		for (int i = 0; i < ROWS; ++i)
+			for (int j = 0; j < COLUMNS; ++j)
+				try {
+					if (!isPositionOccupied(i, j))
+						return true;
+				} catch (InvalidPositionException e) {
+					return false;
+				}
+
+		return false;
 	}
 
 	@Override
@@ -64,38 +84,37 @@ public class BoardUsingPlayer extends Board<Player> {
 		}
 	}
 
-	@Override
-	public boolean checkWin(Player player) {
+	private boolean checkWin() {
 		// rows
 		for (int i = 0; i < ROWS; ++i) {
-			if (checkEqual(player, board[i][0], board[i][1], board[i][2])) {
+			if (checkEqual(board[i][0], board[i][1], board[i][2])) {
 				return true;
 			}
 		}
 		
 		// columns
 		for (int i = 0; i < COLUMNS; ++i) {
-			if (checkEqual(player, board[0][i], board[1][i], board[2][i])) {
+			if (checkEqual(board[0][i], board[1][i], board[2][i])) {
 				return true;
 			}
 		}
 		
 		// top left to bottom right diagonal
-		if (checkEqual(player, board[0][0], board[1][1], board[2][2])) {
+		if (checkEqual(board[0][0], board[1][1], board[2][2])) {
 			return true;
 		}
 		
 		// top right to bottom left diagonal
-		if (checkEqual(player, board[0][2], board[1][1], board[2][0])) {
+		if (checkEqual(board[0][2], board[1][1], board[2][0])) {
 			return true;
 		}
 		
 		return false;
 	}
 	
-	private boolean checkEqual(Player basePlayer, Player ...positions) {
+	private boolean checkEqual(Player ...positions) {
 		if (positions.length > 0) {
-			return Arrays.stream(positions).allMatch(p -> p == basePlayer);
+			return positions[0] != null && Arrays.stream(positions).allMatch(p -> p == positions[0]);
 		}
 		
 		return false;
@@ -109,5 +128,17 @@ public class BoardUsingPlayer extends Board<Player> {
 	@Override
 	public int getColumnCount() {
 		return COLUMNS;
+	}
+
+	@Override
+	public GameStatus getStatus() {
+		if (checkWin()) {
+			return GameStatus.WON;
+		}
+		else if (!isAnyPositionLeft()) {
+			return GameStatus.DRAW;
+		}
+		
+		return GameStatus.IN_PROGRESS;
 	}
 }

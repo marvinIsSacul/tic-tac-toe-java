@@ -3,24 +3,27 @@ package com.tictactoe.board;
 import java.io.Serializable;
 
 import com.tictactoe.exception.InvalidPositionException;
+import com.tictactoe.type.GameStatus;
 
-public abstract class Board<T> implements Serializable {
-	public abstract T getPosition(int row, int column) throws InvalidPositionException;
+public interface Board<T> extends Serializable {
+	public T getPosition(int row, int column) throws InvalidPositionException;
 	
-	public abstract T[] getRowPosition(int row) throws InvalidPositionException;
+	public T[] getRowPosition(int row) throws InvalidPositionException;
 	
-	public abstract void setPosition(int row, int column, T value) throws InvalidPositionException;
+	public boolean setPosition(int row, int column, T value) throws InvalidPositionException;
 	
-	public abstract boolean isPositionOccupied(int row, int column) throws InvalidPositionException;
+	public boolean isPositionOccupied(int row, int column) throws InvalidPositionException;
 	
-	public void resetPosition(int row, int column) throws InvalidPositionException {
+	public default void resetPosition(int row, int column) throws InvalidPositionException {
 		this.setPosition(row, column, null);
 	}
 	
-	public abstract int getRowCount();
-	public abstract int getColumnCount();
+	public GameStatus getStatus();
 	
-	public abstract void clearBoard();
+	public boolean isAnyPositionLeft();
 	
-	public abstract boolean checkWin(T value);
+	public int getRowCount();
+	public int getColumnCount();
+	
+	public void clearBoard();
 }
