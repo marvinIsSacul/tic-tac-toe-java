@@ -1,13 +1,10 @@
 package com.tictactoe.type;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import java.io.Serializable;
 
-@AllArgsConstructor
-@Getter
-@Setter
-public class Player {
+public class Player implements Serializable {
+	private static final long serialVersionUID = 1L;
+	
 	private String name = "";
 	private char mark = 0;
 	

@@ -6,6 +6,8 @@ import com.tictactoe.exception.InvalidPositionException;
 import com.tictactoe.type.Player;
 
 public class BoardUsingPlayer extends Board<Player> {
+	private static final long serialVersionUID = 1L;
+
 	final private Player [][]board = new Player[ROWS][COLUMNS]; 
 	
 	private static final int ROWS = 3;
@@ -20,6 +22,15 @@ public class BoardUsingPlayer extends Board<Player> {
 		assertValidPosition(row, column);
 		
 		return board[row][column];
+	}
+	
+	@Override
+	public Player[] getRowPosition(int row) throws InvalidPositionException {
+		if (row >= ROWS || row < 0) {
+			throw new InvalidPositionException("Invalid row index: " + row);
+		}
+		
+		return board[row];
 	}
 
 	@Override
@@ -90,4 +101,13 @@ public class BoardUsingPlayer extends Board<Player> {
 		return false;
 	}
 
+	@Override
+	public int getRowCount() {
+		return ROWS;
+	}
+
+	@Override
+	public int getColumnCount() {
+		return COLUMNS;
+	}
 }

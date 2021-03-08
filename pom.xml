@@ -19,9 +19,9 @@
   </build>
   <dependencies>
   	<dependency>
-  		<groupId>org.projectlombok</groupId>
-  		<artifactId>lombok</artifactId>
-  		<version>1.18.16</version>
-  	</dependency>
+	    <groupId>org.apache.commons</groupId>
+	    <artifactId>commons-lang3</artifactId>
+	    <version>3.11</version>
+	</dependency>
   </dependencies>
 </project>

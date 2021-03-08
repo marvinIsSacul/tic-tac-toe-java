@@ -1,129 +1,165 @@
 package com.tictactoe.game;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
 import java.util.HashMap;
 
-import com.tictactoe.board.Board;
+import org.apache.commons.lang3.StringUtils;
+
 import com.tictactoe.board.BoardUsingPlayer;
 import com.tictactoe.exception.InvalidPlayerException;
-import com.tictactoe.exception.InvalidStateException;
+import com.tictactoe.exception.InvalidPositionException;
 import com.tictactoe.type.Player;
 
-public class GameUsingTerminal extends Game {
-	private final Player []players = { null, null };
+public class GameUsingTerminal implements Serializable {
+	private static final long serialVersionUID = 1L;
+	
+	private final Player []players = { new Player(), new Player() };
+	private Player turn;
 	private boolean inProgress = false;
 	private Date timeStarted;
-	private final Board board = new BoardUsingPlayer();
+	private final BoardUsingPlayer board = new BoardUsingPlayer();
+	private boolean continuousRender = false;
 	
+
 	public GameUsingTerminal() {
 		super();
 	}
 	
-	@Override
-	public void restartGame() {
+	private void restartGame() {
 		endGame();
 		startGame();
 	}
 	
-	@Override
-	public void endGame() {
+	private void endGame() {
 		inProgress = false;
 	}
 	
-	@Override
-	public void startGame() {
+	private void startGame() {
 		if (!isInProgress()) {
-			timeStarted = new Date();
 			board.clearBoard();
+			turn = Math.random() < 0.5 ? players[0] : players[1];
+			timeStarted = new Date();
 		}
 	}
 	
-	@Override
-	public boolean isInProgress() {
+	private boolean isInProgress() {
 		return inProgress;
 	}
 
-	@Override
-	public Player getWinner() {
+	private Player getWinner() {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-	@Override
-	public Player getLoser() {
+	
+	private Player getLoser() {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-	@Override
-	public Player getPlayer1() {
+	
+	private Player getPlayer1() {
 		return players[0];
 	}
-
-	@Override
-	public Player getPlayer2() {
+	
+	private Player getPlayer2() {
 		return players[1];
 	}
-
-	@Override
-	public Map<String, Object> getState() {
-		final Map<String, Object> data = new HashMap<String, Object>();
-		
-		data.put("player1", players[0]);
-		data.put("player2", players[1]);
-		data.put("inProgress", inProgress);
-		data.put("timeStarted", timeStarted.toGMTString());
-		
-		return data;
-	}
-
-	@Override
-	public void setState(final Map<String, Object> data) throws InvalidStateException {
-		final Object rawPlayer1 = data.get("player1");
-		if (rawPlayer1 == null) {
-			throw new InvalidStateException("Invalid player1");
-		}
-		
-		final Object rawPlayer2 = data.get("player1");
-		if (rawPlayer2 == null) {
-			throw new InvalidStateException("Invalid player2");
-		}
-		
-		final Object rawInprogress = data.get("inProgress");
-		if (rawInprogress == null) {
-			throw new InvalidStateException("Invalid inProgress");
-		}
-		
-		final Object rawTimeStarted = data.get("timeStarted");
-		if (rawTimeStarted == null) {
-			throw new InvalidStateException("Invalid timeStarted");
-		}
-		
-		players[0] = (Player) rawPlayer1;
-		players[1] = (Player) rawPlayer2;
-		inProgress = (boolean) rawInprogress;
-		timeStarted = new Date((String) rawTimeStarted);
-	}
-
-	@Override
-	public Date getTimeStarted() {
+	
+	private Date getTimeStarted() {
 		return timeStarted;
 	}
-
-	@Override
-	public void setPlayer1(Player player1) throws InvalidPlayerException {
+	
+	private Player changeTurn(Player playerOverride) {
+		if (playerOverride == null) {
+			if (turn == players[0]) turn = players[1];
+			else turn = players[0];
+		}
+		else {
+			turn = playerOverride;
+		}
 		
-	}
-
-	@Override
-	public void setPlayer2(Player player2) throws InvalidPlayerException {
-		
+		return turn;
 	}
 	
-	@Override
-	public String toString() {
-		return getState().toString();
+	private boolean playTurn(int position) {
+		return position == 0;
 	}
 	
+	private String getPlayerMove() {
+		final BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		try {
+			final String strInput = reader.readLine();
+			
+			if (!StringUtils.isNumeric(strInput)) {
+				return strInput;
+			}
+			
+			int position = Integer.valueOf(strInput);
+			
+			return strInput;
+		} catch (IOException e) {
+			System.err.println("Input Error");
+		}
+		
+		return "";
+	}
+	
+	private void renderBoardRow(Player []row, boolean isTopBorder) {
+		final String underscores = StringUtils.repeat("_", 13);
+		
+		if (isTopBorder) System.out.println(underscores);
+	//	System.out.printf("|   |   |   |\n");
+		System.out.printf(
+			"| %c | %c | %c |\n",
+			row[0] == null ? '-' : row[0].getMark(),
+			row[1] == null ? '-' : row[1].getMark(),
+			row[2] == null ? '-' : row[2].getMark()
+		);
+		//System.out.println(underscores);
+	}
+	
+	private void renderBoard() {
+		if (continuousRender) {
+			System.out.println("\n");
+		} else {
+			try {
+				Runtime.getRuntime().exec("clear");
+			} catch (IOException e) {
+				
+			}
+		}
+		
+		
+		final String stars = StringUtils.repeat("=", 10);
+		final int ROWS = 3;
+		
+		System.out.println(stars + " TIC TAC TOE " + stars);
+		
+		for (int i = 0; i < ROWS; ++i) {
+			final boolean isTopBorder = i == 0;
+			
+			try {
+				renderBoardRow(board.getRowPosition(i), isTopBorder);
+			}catch (Exception e) {
+				System.out.println(e.getMessage());
+			}
+		}
+		
+		System.out.println();
+		System.out.print("Enter move (exit to quit): ");
+		
+		System.out.println();
+	}
+	
+	public void gameLoop() {
+		String input;
+		do {
+			renderBoard();
+			input = getPlayerMove();
+		} while (!input.toLowerCase().equals("exit"));
+	}
 }
